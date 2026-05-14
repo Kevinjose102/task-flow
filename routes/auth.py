@@ -6,6 +6,7 @@ from auth_utils import create_access_token
 from database import get_db
 from models import UserTable
 from schemas import User
+from fastapi import HTTPException
 
 router = APIRouter()
 
@@ -33,13 +34,19 @@ def login(
     ).first()
 
     if not db_user:
-        return {"message": "User not found"}
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
 
     if not verify_password(
         form_data.password,
         db_user.password
     ):
-        return {"message": "Invalid password"}
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid credentials"
+        )
 
     access_token = create_access_token(
         data={"sub": db_user.username}

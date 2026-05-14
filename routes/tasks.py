@@ -4,7 +4,8 @@ from auth_utils import get_current_user
 from database import get_db
 from models import TaskTable
 from schemas import Task, UpdateStatus
-from models import UserTable
+from models import UserTable, ProjectTable
+from fastapi import HTTPException
 
 router = APIRouter()
 
@@ -32,27 +33,28 @@ def add_task(
     db_user = db.query(UserTable).filter(
         UserTable.username == current_user
     ).first()
-
-    existing_task = db.query(TaskTable).filter(
-        TaskTable.id == task.id
+    project = db.query(ProjectTable).filter(
+        ProjectTable.id == task.project_id,
+        ProjectTable.owner_id == db_user.id
     ).first()
 
-    if not existing_task:
-
-        new_task = TaskTable(
-            id=task.id,
-            title=task.title,
-            status=task.status,
-            owner_id=db_user.id
+    if not project:
+        raise HTTPException(
+            status_code=401,
+            detail="Project not found"
         )
+    new_task = TaskTable(
+        title=task.title,
+        status=task.status,
+        owner_id=db_user.id,
+        project_id=task.project_id
+    )
 
-        db.add(new_task)
-        db.commit()
-        db.refresh(new_task)
+    db.add(new_task)
+    db.commit()
+    db.refresh(new_task)
 
-        return new_task
-
-    return {"message": "task id already in use"}
+    return new_task
 
 @router.get("/tasks/{id}")
 def get_task_id(
@@ -73,7 +75,10 @@ def get_task_id(
     if task:
         return task
 
-    return {"message": "Task not found"}
+    raise HTTPException(
+        status_code=401,
+        detail="Task not found"
+    )
 
 @router.put("/tasks/{id}")
 def update_status(
@@ -99,7 +104,10 @@ def update_status(
 
         return task
 
-    return {"message": "Task Not Found"}
+    raise HTTPException(
+        status_code=401,
+        detail="Task Not Found"
+    )
 
 
 @router.delete("/tasks/{id}")
@@ -122,4 +130,7 @@ def delete_task(id: int,
 
         return {"message": "Task Deleted"}
 
-    return {"message": "Task Not Found"}
+    raise HTTPException(
+        status_code=401,
+        detail="Task Not Found"
+    )
