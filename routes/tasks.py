@@ -40,7 +40,7 @@ def add_task(
 
     if not project:
         raise HTTPException(
-            status_code=401,
+            status_code=404,
             detail="Project not found"
         )
     new_task = TaskTable(
@@ -76,7 +76,7 @@ def get_task_id(
         return task
 
     raise HTTPException(
-        status_code=401,
+        status_code=404,
         detail="Task not found"
     )
 
@@ -105,7 +105,7 @@ def update_status(
         return task
 
     raise HTTPException(
-        status_code=401,
+        status_code=404,
         detail="Task Not Found"
     )
 
@@ -131,6 +131,31 @@ def delete_task(id: int,
         return {"message": "Task Deleted"}
 
     raise HTTPException(
-        status_code=401,
+        status_code=404,
         detail="Task Not Found"
+    )
+
+@router.get("/projects/{project_id}/tasks")
+def get_project_tasks(
+    project_id: int,
+    db: Session = Depends(get_db),
+    current_user: str = Depends(get_current_user)
+):
+    db_user = db.query(UserTable).filter(
+        UserTable.username == current_user
+    ).first()
+
+    project = db.query(ProjectTable).filter(
+        ProjectTable.id == project_id,
+        ProjectTable.owner_id == db_user.id
+    ).first()
+
+    if project:
+        tasks = db.query(TaskTable).filter(
+            TaskTable.project_id == project_id,
+        ).all()
+        return tasks
+    raise HTTPException(
+        status_code=404,
+        detail="Project not found"
     )

@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from database import get_db
 from auth_utils import get_current_user
-from models import ProjectTable, UserTable
+from models import ProjectTable, UserTable, TaskTable
 from schemas import Project
 
 router = APIRouter()
@@ -63,7 +63,10 @@ def get_project(
     if project:
         return project
 
-    return {"message": "Project not found"}
+    raise HTTPException(
+        status_code=404,
+        detail="Project not found"
+    )
 
 @router.delete("/projects/{id}")
 def delete_project(
@@ -82,9 +85,16 @@ def delete_project(
     ).first()
 
     if project:
+        db.query(TaskTable).filter(
+            TaskTable.project_id == id
+        ).delete()
         db.delete(project)
         db.commit()
 
         return {"message": "Project deleted"}
 
-    return {"message": "Project not found"}
+    raise HTTPException(
+        status_code=404,
+        detail="Project not found"
+    )
+
