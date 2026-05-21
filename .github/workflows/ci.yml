@@ -19,7 +19,7 @@ jobs:
             
             - name: install dependencies
               run: |
-                pip install -d requirements.txt
+                pip install -r requirements.txt
             
             - name: verify python works
               run: |
