@@ -9,6 +9,10 @@ from fastapi import HTTPException
 
 router = APIRouter()
 
+@router.get("/")
+def home():
+    return {"message": "API is running"}
+
 @router.get("/tasks")
 def get_tasks(
     db: Session = Depends(get_db),
