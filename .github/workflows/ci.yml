@@ -1,0 +1,26 @@
+name: CI pipeline 
+
+on:
+    push:
+        branches:
+            - main
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: checkout repo
+              uses: actions/checkout@v4
+
+            - name: setup python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.13"
+            
+            - name: install dependencies
+              run: |
+                pip install -d requirements.txt
+            
+            - name: verify python works
+              run: |
+                python --version
