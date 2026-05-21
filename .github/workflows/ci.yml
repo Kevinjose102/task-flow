@@ -39,6 +39,11 @@ jobs:
               run: |
                 python -c "import main"
             
+            - name: run tests
+              run: |
+                pytest
+
             - name: docker image build
               run: |
                 docker build -t taskflow-backend .
+              
