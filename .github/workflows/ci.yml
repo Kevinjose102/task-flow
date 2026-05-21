@@ -21,6 +21,6 @@ jobs:
               run: |
                 pip install -r requirements.txt
             
-            - name: verify python works
+            - name: validate backend imports
               run: |
-                python --version
+                python -c "import main"
