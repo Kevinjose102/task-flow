@@ -38,3 +38,7 @@ jobs:
                 DATABASE_URL: ${{ secrets.DATABASE_URL }}
               run: |
                 python -c "import main"
+            
+            - name: docker image build
+              run: |
+                docker build -t taskflow-backend .
