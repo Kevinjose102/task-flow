@@ -8,6 +8,18 @@ jobs:
     build:
         runs-on: ubuntu-latest
 
+        services:
+          postgres:
+            image: postgres:17
+
+            env:
+              POSTGRES_USER: postgres
+              POSTGRES_PASSWORD: password
+              POSTGRES_DB: taskflow
+
+            ports:
+              - 5432:5432
+
         steps:
             - name: checkout repo
               uses: actions/checkout@v4
