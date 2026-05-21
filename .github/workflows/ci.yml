@@ -40,6 +40,9 @@ jobs:
                 python -c "import main"
             
             - name: run tests
+              env:
+                DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
               run: |
                 pytest
 
