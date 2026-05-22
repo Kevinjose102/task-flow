@@ -31,9 +31,9 @@ def test_get_tasks():
     )
 
     project = create_project(
-    client,
-    token
-)
+        client,
+        token
+    )
 
     project_id = project.json()["id"]
     create_task(
@@ -96,4 +96,202 @@ def test_get_task():
     assert (
         response.json()["id"]
         == task_id
+    )
+
+def test_add_task():
+    response, username, password = create_user(
+        client
+    )
+
+    token = login(
+        client,
+        username,
+        password
+    )
+
+    project = create_project(
+        client,
+        token
+    )
+
+    project_id = project.json()["id"]
+
+    task = create_task(
+        client,
+        token,
+        project_id
+    )
+
+    assert task.status_code == 200
+
+    body = task.json()
+
+    assert "id" in body
+
+    assert body["title"] == "test_task"
+
+    assert body["status"] == "pending"
+
+    assert (
+        body["project_id"] == project_id
+    )
+
+def test_update_task():
+
+    response, username, password = create_user(
+        client
+    )
+
+    token = login(
+        client,
+        username,
+        password
+    )
+
+    project = create_project(
+        client,
+        token
+    )
+
+    project_id = project.json()["id"]
+
+    task = create_task(
+        client,
+        token,
+        project_id
+    )
+
+    task_id = task.json()["id"]
+
+    response = client.put(
+        f"/tasks/{task_id}",
+        headers={
+            "Authorization":
+            f"Bearer {token}"
+        },
+        json={
+            "status": "updated_status"
+        }
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert (
+        body["status"]
+        == "updated_status"
+    )
+
+    assert (
+        body["id"]
+        == task_id
+    )
+
+def test_delete_task():
+
+    response, username, password = create_user(
+        client
+    )
+
+    token = login(
+        client,
+        username,
+        password
+    )
+
+    project = create_project(
+        client,
+        token
+    )
+
+    project_id = project.json()["id"]
+
+    task = create_task(
+        client,
+        token,
+        project_id
+    )
+
+    task_id = task.json()["id"]
+
+    response = client.delete(
+        f"/tasks/{task_id}",
+        headers={
+            "Authorization":
+            f"Bearer {token}"
+        }
+    )
+
+    assert response.status_code == 200
+
+    assert response.json() == {
+        "message":
+        "Task Deleted"
+    }
+
+    response = client.get(
+        f"/tasks/{task_id}",
+        headers={
+            "Authorization":
+            f"Bearer {token}"
+        }
+    )
+
+    assert response.status_code == 404
+
+def test_get_project_tasks():
+    response, username, password = create_user(
+        client
+    )
+
+    token = login(
+        client,
+        username,
+        password
+    )
+
+    project = create_project(
+        client,
+        token
+    )
+
+    project_id = project.json()["id"]
+
+    create_task(
+        client,
+        token,
+        project_id
+    )
+
+    create_task(
+        client,
+        token,
+        project_id
+    )
+
+    response = client.get(
+        f"/projects/{project_id}/tasks",
+        headers={
+            "Authorization":
+            f"Bearer {token}"
+        }
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert len(
+        body
+    ) >= 2
+
+    assert (
+        body[0]["project_id"]
+        == project_id
+    )
+
+    assert (
+        body[1]["project_id"]
+        == project_id
     )
