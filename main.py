@@ -6,7 +6,23 @@ from routes.projects import router as project_router
 from database import Base, engine
 from models import TaskTable, UserTable
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+
+    allow_origins=[
+        "http://localhost:5173"
+    ],
+
+    allow_credentials=True,
+
+    allow_methods=["*"],
+
+    allow_headers=["*"]
+)
 
 Base.metadata.create_all(bind=engine)
 print(Base.metadata.tables.keys())
