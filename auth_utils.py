@@ -1,9 +1,10 @@
 from passlib.context import CryptContext
 
 from jose import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
+
 
 from dotenv import load_dotenv
 import os
@@ -38,7 +39,7 @@ def create_access_token(data: dict):
 
     to_encode = data.copy()
 
-    expire = datetime.now(datetime.UTC) + timedelta(
+    expire = datetime.now(UTC) + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
