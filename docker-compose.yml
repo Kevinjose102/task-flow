@@ -1,5 +1,8 @@
 services:
   backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: taskflow-backend:latest
     ports:
       - 8000:8000

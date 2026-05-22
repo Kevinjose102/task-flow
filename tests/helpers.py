@@ -40,8 +40,9 @@ def login(
 
 
 def create_task(
-    client: TestClient,
-    token: str
+    client,
+    token,
+    project_id
 ):
 
     response = client.post(
@@ -51,7 +52,28 @@ def create_task(
             f"Bearer {token}"
         },
         json={
-            "title": "test_task"
+            "title": "test_task",
+            "status": "pending",
+            "project_id": project_id
+        }
+    )
+
+    return response
+
+
+def create_project(
+    client,
+    token
+):
+
+    response = client.post(
+        "/projects",
+        headers={
+            "Authorization":
+            f"Bearer {token}"
+        },
+        json={
+            "name": "test_project"
         }
     )
 

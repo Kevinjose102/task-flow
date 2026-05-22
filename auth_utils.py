@@ -38,7 +38,7 @@ def create_access_token(data: dict):
 
     to_encode = data.copy()
 
-    expire = datetime.utcnow() + timedelta(
+    expire = datetime.now(datetime.UTC) + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
