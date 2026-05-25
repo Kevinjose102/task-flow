@@ -49,7 +49,7 @@ jobs:
                 DATABASE_URL: ${{ secrets.DATABASE_URL }}
                 SECRET_KEY: ${{ secrets.SECRET_KEY }}
                 
-                REDIS_HOST: redis
+                REDIS_HOST: localhost
                 REDIS_PORT: 6379
               run: |
                 pytest
