@@ -6,6 +6,12 @@ from models import TaskTable
 from schemas import Task, UpdateStatus
 from models import UserTable, ProjectTable
 from fastapi import HTTPException
+from redis_client import redis_client
+import json
+
+import time
+
+start = time.time()
 
 router = APIRouter()
 
@@ -18,14 +24,42 @@ def get_tasks(
     db: Session = Depends(get_db),
     current_user: str = Depends(get_current_user)
 ):
+    cache_key = f"tasks:{current_user}"
+
+    cached = redis_client.get(cache_key)
+
+    if cached:
+        print(
+            "CACHE HIT",
+            time.time() - start
+        )
+        return json.loads(cached)
+    
+    print(
+        "CACHE MISS",
+        time.time() - start
+    )
 
     db_user = db.query(UserTable).filter(
         UserTable.username == current_user
     ).first()
 
-    return db.query(TaskTable).filter(
+    tasks = db.query(TaskTable).filter(
         TaskTable.owner_id == db_user.id
     ).all()
+
+    response = []
+
+    for task in tasks:
+        response.append({
+            "id": task.id,
+            "title": task.title,
+            "status": task.status,
+            "owner_id": task.owner_id,
+            "project_id": task.project_id
+        })
+    redis_client.setex(cache_key, 600, json.dumps(response))
+    return response
 
 @router.post("/tasks")
 def add_task(
@@ -57,6 +91,14 @@ def add_task(
     db.add(new_task)
     db.commit()
     db.refresh(new_task)
+
+    redis_client.delete(
+        f"tasks:{current_user}"
+    )
+
+    redis_client.delete(
+        f"project_tasks:{current_user}:{task.project_id}"
+    )
 
     return new_task
 
@@ -106,6 +148,14 @@ def update_status(
         db.commit()
         db.refresh(task)
 
+        redis_client.delete(
+            f"tasks:{current_user}"
+        )
+
+        redis_client.delete(
+            f"task:{current_user}:{id}"
+        )
+
         return task
 
     raise HTTPException(
@@ -131,6 +181,14 @@ def delete_task(id: int,
     if task:
         db.delete(task)
         db.commit()
+        
+        redis_client.delete(
+            f"tasks:{current_user}"
+        )
+
+        redis_client.delete(
+            f"task:{current_user}:{id}"
+        )
 
         return {"message": "Task Deleted"}
 
