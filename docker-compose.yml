@@ -20,6 +20,7 @@ services:
       - .env
     depends_on:
       - db
+      - redis
     restart: on-failure 
   db:
     image: postgres:17
@@ -35,7 +36,17 @@ services:
       - 6379:6379
     
     restart: unless-stopped
+  
+  nginx: 
+    image: nginx:latest
+
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+    depends_on:
+      - frontend
+      - backend
 volumes:
   postgres_data:
-
-    
