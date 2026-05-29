@@ -8,11 +8,7 @@ from models import TaskTable, UserTable
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(
-    docs_url="/api/docs",
-
-    openapi_url="/api/openapi.json"
-)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
