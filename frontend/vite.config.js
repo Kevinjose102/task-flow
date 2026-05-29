@@ -7,11 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
 
-        host: true,
-
-        allowedHosts: [
-            "frontend"
-        ]
+        host: true
 
     }
 })
