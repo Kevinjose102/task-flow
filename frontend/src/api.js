@@ -31,6 +31,18 @@ export const api = {
         return response.json();
     },
 
+    signup: async (username, password) => {
+        const response = await fetch(`${API_URL}/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
+        if (!response.ok) throw new Error('Signup failed');
+        return response.json();
+    },
+
     getProjects: async () => {
         const response = await fetch(`${API_URL}/projects`, {
             headers: getAuthHeaders(),

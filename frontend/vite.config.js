@@ -6,7 +6,8 @@ export default defineConfig({
   server: {
     host: true,
     allowedHosts: [
-      "frontend-production-9a96.up.railway.app"
+      "frontend-production-9a96.up.railway.app",
+      "frontend"
     ]
   }
 })
