@@ -1,6 +1,10 @@
 from fastapi.testclient import TestClient
 from importlib import import_module
 
+import os
+
+os.environ["TESTING"] = "1"
+
 from tests.helpers import (
     create_user,
     login,
@@ -8,6 +12,8 @@ from tests.helpers import (
     create_project
 )
 app = import_module("main").app
+app.state.limiter.enabled = False
+print("Limiter enabled:", app.state.limiter.enabled)
 
 client = TestClient(app)
 

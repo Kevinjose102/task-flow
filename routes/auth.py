@@ -6,12 +6,17 @@ from auth_utils import create_access_token
 from database import get_db
 from models import UserTable
 from schemas import User
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
+from core.limiter import limiter
 
 router = APIRouter()
 
 @router.post("/signup")
-def signup(user: User, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def signup(
+    request: Request,
+    user: User, 
+    db: Session = Depends(get_db)):
     new_user = UserTable(
         username=user.username,
         password=hash_password(user.password)
@@ -24,7 +29,9 @@ def signup(user: User, db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login")
+@limiter.limit("5/minute")
 def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):

@@ -8,17 +8,23 @@ from models import TaskTable, UserTable
 
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(
-    docs_url="/api/docs",
+from core.limiter import limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 
-    openapi_url="/api/openapi.json"
+app = FastAPI()
+
+app.state.limiter = limiter
+app.add_exception_handler(
+    RateLimitExceeded,
+    _rate_limit_exceeded_handler
 )
-
 app.add_middleware(
     CORSMiddleware,
 
     allow_origins=[
-        "http://localhost:5173"
+        "http://localhost:5173",
+        "https://frontend-production-9a96.up.railway.app"
     ],
 
     allow_credentials=True,
