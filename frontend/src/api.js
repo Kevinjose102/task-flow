@@ -24,10 +24,21 @@ export const api = {
 
         const response = await fetch(`${API_URL}/login`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
             body: formData.toString(),
         });
-        if (!response.ok) throw new Error('Login failed');
+
+        if (!response.ok) {
+
+            const error = new Error('Login failed');
+
+            error.status = response.status;
+
+            throw error;
+        }
+
         return response.json();
     },
 

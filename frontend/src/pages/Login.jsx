@@ -16,7 +16,18 @@ export default function Login() {
             localStorage.setItem('token', data.access_token);
             navigate('/');
         } catch (err) {
-            setError('Invalid credentials');
+
+            if (err.status === 429) {
+
+                setError(
+                    "Too many login attempts. Please wait a minute and try again."
+                );
+
+            } else {
+
+                setError("Invalid credentials");
+
+            }
         }
     };
 
