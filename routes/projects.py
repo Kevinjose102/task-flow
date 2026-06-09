@@ -9,6 +9,11 @@ from schemas import Project
 from redis_client import redis_client
 import json
 
+from core.metrics import (
+    projects_created_total,
+    projects_deleted_total
+)
+
 router = APIRouter()
 
 @router.post("/projects")
@@ -40,6 +45,8 @@ def create_project(
     )
 
     print("DELETED COUNT:", deleted)
+
+    projects_created_total.inc()
 
     return new_project
 
@@ -134,7 +141,7 @@ def delete_project(
         redis_client.delete(
             f"projects:{current_user}"
         )
-
+        projects_deleted_total.inc()
         return {"message": "Project deleted"}
 
     
