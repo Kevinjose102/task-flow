@@ -8,7 +8,7 @@ from models import UserTable
 from schemas import User
 from fastapi import HTTPException, Request
 from core.limiter import limiter
-
+from core.metrics import login_counter
 router = APIRouter()
 
 @router.post("/signup")
@@ -58,6 +58,8 @@ def login(
     access_token = create_access_token(
         data={"sub": db_user.username}
     )
+
+    login_counter.inc()
 
     return {
         "access_token": access_token,

@@ -5,7 +5,7 @@ from routes.auth import router as auth_router
 from routes.projects import router as project_router
 from database import Base, engine
 from models import TaskTable, UserTable
-
+from routes.metrics import router as metrics_router
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.limiter import limiter
@@ -39,3 +39,4 @@ print(Base.metadata.tables.keys())
 app.include_router(task_router)
 app.include_router(auth_router)
 app.include_router(project_router)
+app.include_router(metrics_router)
