@@ -8,7 +8,11 @@ from models import UserTable, ProjectTable
 from fastapi import HTTPException
 from redis_client import redis_client
 import json
-
+from core.metrics import (
+    tasks_created_total,
+    tasks_completed_total,
+    tasks_deleted_total
+)
 import time
 
 start = time.time()
@@ -99,7 +103,7 @@ def add_task(
     redis_client.delete(
         f"project_tasks:{current_user}:{task.project_id}"
     )
-
+    tasks_created_total.inc()
     return new_task
 
 @router.get("/tasks/{id}")
@@ -133,6 +137,7 @@ def update_status(
     db: Session = Depends(get_db),
     current_user: str = Depends(get_current_user)
 ):  
+    
     db_user = db.query(UserTable).filter(
         UserTable.username == current_user
     ).first()
@@ -143,6 +148,8 @@ def update_status(
         ).first()
 
     if task:
+        if task.status != "completed" and updated_status.status == "completed":
+            tasks_completed_total.inc()
         task.status = updated_status.status
 
         db.commit()
@@ -155,7 +162,7 @@ def update_status(
         redis_client.delete(
             f"task:{current_user}:{id}"
         )
-
+        
         return task
 
     raise HTTPException(
@@ -189,7 +196,7 @@ def delete_task(id: int,
         redis_client.delete(
             f"task:{current_user}:{id}"
         )
-
+        tasks_deleted_total.inc()
         return {"message": "Task Deleted"}
 
     raise HTTPException(

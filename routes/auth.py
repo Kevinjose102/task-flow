@@ -9,6 +9,12 @@ from schemas import User
 from fastapi import HTTPException, Request
 from core.limiter import limiter
 
+from core.metrics import (
+    login_attempts_total,
+    successful_logins_total,
+    failed_logins_total
+)
+
 router = APIRouter()
 
 @router.post("/signup")
@@ -36,11 +42,15 @@ def login(
     db: Session = Depends(get_db)
 ):
 
+    login_attempts_total.inc()
+
     db_user = db.query(UserTable).filter(
         UserTable.username == form_data.username
     ).first()
 
     if not db_user:
+        failed_logins_total.inc()
+
         raise HTTPException(
             status_code=401,
             detail="Invalid credentials"
@@ -58,6 +68,8 @@ def login(
     access_token = create_access_token(
         data={"sub": db_user.username}
     )
+
+    successful_logins_total.inc()
 
     return {
         "access_token": access_token,
