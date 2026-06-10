@@ -3,12 +3,15 @@ from fastapi import FastAPI
 from routes.tasks import router as task_router
 from routes.auth import router as auth_router
 from routes.projects import router as project_router
+
 from database import Base, engine
 from models import TaskTable, UserTable
+
 from routes.metrics import router as metrics_router
+from core.limiter import limiter
+
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.limiter import limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 

@@ -52,6 +52,8 @@ def get_tasks(
         TaskTable.owner_id == db_user.id
     ).all()
 
+    
+
     response = []
 
     for task in tasks:
